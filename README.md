@@ -1,0 +1,1 @@
+# Simple CLI app to clean your projects from old git branches
