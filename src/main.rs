@@ -1,15 +1,20 @@
 use std::io;
 use std::io::{BufRead, Write};
 
+use git2::BranchType;
+
 use errors::term_errors::Error;
+use handlers::git;
 
 mod errors;
+mod handlers;
 
-fn main() -> Result<(), Error>{
+fn main() -> Result<(), Error> {
     crossterm::terminal::enable_raw_mode()?;
 
     let input = io::stdin();
     let output = io::stdout();
+
 
     loop {
         let mut handle_out = output.lock();
@@ -17,14 +22,29 @@ fn main() -> Result<(), Error>{
         handle_out.flush()?;
 
         let line = input.lock().lines().next().unwrap()?;
-        if line == "quit" {
-            break;
+        match line.as_str() {
+            "quit" => {
+                break;
+            }
+            "local" => {
+                let branches = git::handle_branches(BranchType::Local);
+                for item in branches {
+                    writeln!(handle_out, "{}", item)?;
+                }
+            }
+            "remote" => {
+                let branches = git::handle_branches(BranchType::Remote);
+                for item in branches {
+                    writeln!(handle_out, "{}", item)?;
+                }
+            }
+            _ => {
+                write!(handle_out, "{}\n", "Unknown command")?;
+            }
         }
-
-        write!(handle_out, "You typed '{}'\n\r", line)?;
-        handle_out.flush()?;
     }
 
     crossterm::terminal::disable_raw_mode()?;
     Ok(())
 }
+
