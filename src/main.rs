@@ -1,14 +1,18 @@
 use std::io;
 use std::io::{BufRead, Write};
 
-fn main() -> Result<(), crossterm::ErrorKind>{
+use errors::term_errors::Error;
+
+mod errors;
+
+fn main() -> Result<(), Error>{
     crossterm::terminal::enable_raw_mode()?;
 
     let input = io::stdin();
     let output = io::stdout();
-    let mut handle_out = output.lock();
 
     loop {
+        let mut handle_out = output.lock();
         write!(handle_out, "Type a command >")?;
         handle_out.flush()?;
 
