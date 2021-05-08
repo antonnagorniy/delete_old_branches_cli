@@ -1,17 +1,20 @@
 use std::io;
 use std::io::{BufRead, Write};
 
-use git2::{BranchType, Repository};
+use git2::BranchType;
 
 use errors::term_errors::Error;
+use handlers::git;
 
 mod errors;
+mod handlers;
 
 fn main() -> Result<(), Error> {
     crossterm::terminal::enable_raw_mode()?;
 
     let input = io::stdin();
     let output = io::stdout();
+
 
     loop {
         let mut handle_out = output.lock();
@@ -24,19 +27,15 @@ fn main() -> Result<(), Error> {
                 break;
             }
             "local" => {
-                let repo = Repository::open_from_env()?;
-                for item in repo.branches(Some(BranchType::Local))? {
-                    let (branch, _) = item?;
-                    let name = branch.name().unwrap().unwrap();
-                    write!(handle_out, "{}\n", name)?;
+                let branches = git::handle_branches(BranchType::Local);
+                for item in branches {
+                    writeln!(handle_out, "{}", item)?;
                 }
             }
             "remote" => {
-                let repo = Repository::open_from_env()?;
-                for item in repo.branches(Some(BranchType::Remote))? {
-                    let (branch, _) = item?;
-                    let name = branch.name().unwrap().unwrap();
-                    write!(handle_out, "{}\n", name)?;
+                let branches = git::handle_branches(BranchType::Remote);
+                for item in branches {
+                    writeln!(handle_out, "{}", item)?;
                 }
             }
             _ => {
@@ -48,3 +47,4 @@ fn main() -> Result<(), Error> {
     crossterm::terminal::disable_raw_mode()?;
     Ok(())
 }
+
