@@ -1,7 +1,7 @@
 use std::io;
 use std::io::{BufRead, Write};
 
-use git2::Repository;
+use git2::{BranchType, Repository};
 
 use errors::term_errors::Error;
 
@@ -23,15 +23,25 @@ fn main() -> Result<(), Error> {
             "quit" => {
                 break;
             }
-            "branches" => {
+            "local" => {
                 let repo = Repository::open_from_env()?;
-                for item in repo.branches(None)? {
+                for item in repo.branches(Some(BranchType::Local))? {
                     let (branch, _) = item?;
                     let name = branch.name().unwrap().unwrap();
                     write!(handle_out, "{}\n", name)?;
                 }
             }
-            _ => {}
+            "remote" => {
+                let repo = Repository::open_from_env()?;
+                for item in repo.branches(Some(BranchType::Remote))? {
+                    let (branch, _) = item?;
+                    let name = branch.name().unwrap().unwrap();
+                    write!(handle_out, "{}\n", name)?;
+                }
+            }
+            _ => {
+                write!(handle_out, "{}\n", "Unknown command")?;
+            }
         }
     }
 
