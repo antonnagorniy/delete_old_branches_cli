@@ -5,7 +5,12 @@ pub mod term_errors {
     pub(crate) enum Error {
         #[error(transparent)]
         CrosstermError(#[from] crossterm::ErrorKind),
+
         #[error(transparent)]
-        IoError(#[from] io::Error)
+        IoError(#[from] io::Error),
+
+        #[error(transparent)]
+        GitError(#[from] git2::Error),
+
     }
 }

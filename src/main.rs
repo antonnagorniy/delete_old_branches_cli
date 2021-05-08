@@ -1,11 +1,13 @@
 use std::io;
 use std::io::{BufRead, Write};
 
+use git2::Repository;
+
 use errors::term_errors::Error;
 
 mod errors;
 
-fn main() -> Result<(), Error>{
+fn main() -> Result<(), Error> {
     crossterm::terminal::enable_raw_mode()?;
 
     let input = io::stdin();
@@ -17,12 +19,20 @@ fn main() -> Result<(), Error>{
         handle_out.flush()?;
 
         let line = input.lock().lines().next().unwrap()?;
-        if line == "quit" {
-            break;
+        match line.as_str() {
+            "quit" => {
+                break;
+            }
+            "branches" => {
+                let repo = Repository::open_from_env()?;
+                for item in repo.branches(None)? {
+                    let (branch, _) = item?;
+                    let name = branch.name().unwrap().unwrap();
+                    write!(handle_out, "{}\n", name)?;
+                }
+            }
+            _ => {}
         }
-
-        write!(handle_out, "You typed '{}'\n\r", line)?;
-        handle_out.flush()?;
     }
 
     crossterm::terminal::disable_raw_mode()?;
