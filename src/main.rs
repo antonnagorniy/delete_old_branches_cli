@@ -6,23 +6,26 @@ use git2::{BranchType, Repository};
 use errors::term_errors::Errors;
 use handlers::git;
 
+use crate::models::data;
+
 mod errors;
 mod handlers;
 mod models;
 
-fn main() -> Result<(), Errors> {
-    crossterm::terminal::enable_raw_mode()?;
 
+fn main() -> Result<(), Errors> {
     let input = io::stdin();
     let output = io::stdout();
     let repo = Repository::open_from_env().unwrap();
+    let mut handle_out = output.lock();
+
+    writeln!(handle_out, "Type 'help' or 'h' to find all commands")?;
 
     loop {
-        let mut handle_out = output.lock();
-        write!(handle_out, "Type a command >")?;
+        write!(handle_out, "Type a command > ")?;
         handle_out.flush()?;
 
-        let line = input.lock().lines().next().unwrap()?;
+        let line = input.lock().lines().next().unwrap()?.to_lowercase();
         match line.as_str() {
             "quit" | "q" => {
                 break;
@@ -39,13 +42,15 @@ fn main() -> Result<(), Errors> {
                     writeln!(handle_out, "{}", item)?;
                 }
             }
+            "help" | "h" => {
+                writeln!(handle_out, "{}", data::HELP)?;
+            }
             _ => {
                 writeln!(handle_out, "Unknown command")?;
             }
         }
     }
 
-    crossterm::terminal::disable_raw_mode()?;
     Ok(())
 }
 

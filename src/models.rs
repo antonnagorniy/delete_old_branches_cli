@@ -5,6 +5,9 @@ pub mod data {
     use chrono::NaiveDateTime;
     use git2::Oid;
 
+    pub const HELP: &str = "quit or q - Exit from app\nlocal or l - Get local branches\n\
+                remote or r - Get remote branches";
+
     #[derive(Debug, Clone)]
     pub struct Branch {
         id: Oid,
