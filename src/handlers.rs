@@ -14,9 +14,10 @@ pub mod git {
             let commit = branch.get().peel_to_commit().unwrap().clone();
             let time = NaiveDateTime::from_timestamp(
                 commit.time().seconds(), 0);
-            branches.push(Branch::new(commit.id(), name, time))
+
+            branches.push(Branch::new(commit.id(), name, time));
         }
 
-        return branches;
+        branches
     }
 }

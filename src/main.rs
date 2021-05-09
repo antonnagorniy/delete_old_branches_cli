@@ -33,14 +33,13 @@ fn main() -> Result<(), Error> {
                 }
             }
             "remote" | "r" => {
-                let branches = git::handle_branches(
-                    BranchType::Remote);
+                let branches = git::handle_branches(BranchType::Remote);
                 for item in branches {
                     writeln!(handle_out, "{}", item)?;
                 }
             }
             _ => {
-                write!(handle_out, "{}\n", "Unknown command")?;
+                writeln!(handle_out, "Unknown command")?;
             }
         }
     }

@@ -14,11 +14,11 @@ pub mod data {
 
     impl Branch {
         pub fn new(id: Oid, name: String, time: NaiveDateTime) -> Branch {
-            return Branch {
+            Branch {
                 id,
                 name,
                 time,
-            };
+            }
         }
     }
 
