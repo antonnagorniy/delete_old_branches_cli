@@ -1,3 +1,4 @@
+use std::convert::TryFrom;
 use std::io;
 use std::io::{BufRead, Write};
 
@@ -6,7 +7,7 @@ use git2::{BranchType, Repository};
 use errors::term_errors::Errors;
 use handlers::git;
 
-use crate::models::data;
+use crate::models::data::{Commands, HELP};
 
 mod errors;
 mod handlers;
@@ -26,27 +27,29 @@ fn main() -> Result<(), Errors> {
         handle_out.flush()?;
 
         let line = input.lock().lines().next().unwrap()?.to_lowercase();
-        match line.as_str() {
-            "quit" | "q" => {
+        let action = Commands::try_from(line)?;
+        match action {
+            Commands::Quit() => {
                 break;
             }
-            "local" | "l" => {
+            Commands::Delete() => {}
+            Commands::Local() => {
                 let branches = git::handle_branches(&repo, BranchType::Local);
                 for item in branches {
                     writeln!(handle_out, "{}", item)?;
+                    handle_out.flush()?;
                 }
             }
-            "remote" | "r" => {
+            Commands::Remote() => {
                 let branches = git::handle_branches(&repo, BranchType::Remote);
                 for item in branches {
                     writeln!(handle_out, "{}", item)?;
+                    handle_out.flush()?;
                 }
             }
-            "help" | "h" => {
-                writeln!(handle_out, "{}", data::HELP)?;
-            }
-            _ => {
-                writeln!(handle_out, "Unknown command")?;
+            Commands::Help() => {
+                writeln!(handle_out, "{}", HELP)?;
+                handle_out.flush()?;
             }
         }
     }
