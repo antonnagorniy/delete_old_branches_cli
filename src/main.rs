@@ -1,6 +1,7 @@
 use std::io;
 use std::io::{BufRead, Write};
 
+use chrono::NaiveDateTime;
 use git2::BranchType;
 
 use errors::term_errors::Error;
@@ -28,14 +29,14 @@ fn main() -> Result<(), Error> {
             }
             "local" => {
                 let branches = git::handle_branches(BranchType::Local);
-                for item in branches {
-                    writeln!(handle_out, "{}", item)?;
+                for (item, time) in branches {
+                    writeln!(handle_out, "{} - Last commit: {}", item, time)?;
                 }
             }
             "remote" => {
                 let branches = git::handle_branches(BranchType::Remote);
-                for item in branches {
-                    writeln!(handle_out, "{}", item)?;
+                for (item, time) in branches {
+                    writeln!(handle_out, "{} - Last commit: {}", item, time)?;
                 }
             }
             _ => {
