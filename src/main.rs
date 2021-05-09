@@ -15,7 +15,6 @@ fn main() -> Result<(), Error> {
     let input = io::stdin();
     let output = io::stdout();
 
-
     loop {
         let mut handle_out = output.lock();
         write!(handle_out, "Type a command >")?;
@@ -23,19 +22,21 @@ fn main() -> Result<(), Error> {
 
         let line = input.lock().lines().next().unwrap()?;
         match line.as_str() {
-            "quit" => {
+            "quit" | "q" => {
                 break;
             }
-            "local" => {
-                let branches = git::handle_branches(BranchType::Local);
-                for item in branches {
-                    writeln!(handle_out, "{}", item)?;
+            "local" | "l" => {
+                let branches = git::handle_branches(
+                    BranchType::Local);
+                for (item, time) in branches {
+                    writeln!(handle_out, "{} - Last commit: {}", item, time)?;
                 }
             }
-            "remote" => {
-                let branches = git::handle_branches(BranchType::Remote);
-                for item in branches {
-                    writeln!(handle_out, "{}", item)?;
+            "remote" | "r" => {
+                let branches = git::handle_branches(
+                    BranchType::Remote);
+                for (item, time) in branches {
+                    writeln!(handle_out, "{} - Last commit: {}", item, time)?;
                 }
             }
             _ => {
