@@ -9,7 +9,7 @@ pub mod data {
     pub struct Branch {
         id: Oid,
         name: String,
-        time: NaiveDateTime,
+        pub time: NaiveDateTime,
     }
 
     impl Branch {
