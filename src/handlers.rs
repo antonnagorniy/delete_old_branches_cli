@@ -2,7 +2,7 @@ pub mod git {
     use std::collections::HashMap;
 
     use chrono::NaiveDateTime;
-    use git2::{BranchType, Commit, Oid, Repository};
+    use git2::{BranchType, Repository};
 
     pub fn handle_branches(br_type: BranchType) -> HashMap<String, NaiveDateTime> {
         let repo = Repository::open_from_env().unwrap();
