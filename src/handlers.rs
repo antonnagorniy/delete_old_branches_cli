@@ -1,12 +1,12 @@
 pub mod git {
-    use std::collections::HashMap;
-
     use chrono::NaiveDateTime;
     use git2::{BranchType, Repository};
 
-    pub fn handle_branches(br_type: BranchType) -> HashMap<String, NaiveDateTime> {
+    use crate::models::data::Branch;
+
+    pub fn handle_branches(br_type: BranchType) -> Vec<Branch> {
         let repo = Repository::open_from_env().unwrap();
-        let mut branches: HashMap<String, NaiveDateTime> = HashMap::new();
+        let mut branches: Vec<Branch> = Vec::new();
 
         for item in repo.branches(Some(br_type)).unwrap() {
             let (branch, _) = item.unwrap();
@@ -14,7 +14,7 @@ pub mod git {
             let commit = branch.get().peel_to_commit().unwrap().clone();
             let time = NaiveDateTime::from_timestamp(
                 commit.time().seconds(), 0);
-            branches.insert(name, time);
+            branches.push(Branch::new(commit.id(), name, time))
         }
 
         return branches;

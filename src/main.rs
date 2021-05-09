@@ -8,6 +8,7 @@ use handlers::git;
 
 mod errors;
 mod handlers;
+mod models;
 
 fn main() -> Result<(), Error> {
     crossterm::terminal::enable_raw_mode()?;
@@ -26,17 +27,16 @@ fn main() -> Result<(), Error> {
                 break;
             }
             "local" | "l" => {
-                let branches = git::handle_branches(
-                    BranchType::Local);
-                for (item, time) in branches {
-                    writeln!(handle_out, "{} - Last commit: {}", item, time)?;
+                let branches = git::handle_branches(BranchType::Local);
+                for item in branches {
+                    writeln!(handle_out, "{}", item)?;
                 }
             }
             "remote" | "r" => {
                 let branches = git::handle_branches(
                     BranchType::Remote);
-                for (item, time) in branches {
-                    writeln!(handle_out, "{} - Last commit: {}", item, time)?;
+                for item in branches {
+                    writeln!(handle_out, "{}", item)?;
                 }
             }
             _ => {
