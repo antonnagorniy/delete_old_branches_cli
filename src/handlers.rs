@@ -22,3 +22,37 @@ pub mod git {
         branches
     }
 }
+
+pub mod user {
+    use std::convert::TryFrom;
+    use std::io::{BufRead, Stdin, StdoutLock, Write};
+
+    use git2::Repository;
+
+    use crate::models::data::Commands;
+
+    pub fn handle_user_input(
+        input: &Stdin,
+        repo: &Repository,
+        handle_out: &mut StdoutLock) -> Commands {
+        write!(handle_out, "Type a command > ").unwrap();
+        handle_out.flush().unwrap();
+
+        let req = input.lock().lines().next();
+        let line = match req {
+            Some(line) => line.unwrap(),
+            None => {
+                return handle_user_input(input, repo, handle_out);
+            }
+        };
+
+        let command = Commands::try_from(line);
+        match command {
+            Ok(result) => result,
+            Err(err) => {
+                writeln!(handle_out, "{}", err).unwrap();
+                return handle_user_input(input, repo, handle_out);
+            }
+        }
+    }
+}

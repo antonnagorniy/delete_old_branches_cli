@@ -57,4 +57,6 @@ remote or r - Get remote branches"#;
             }
         }
     }
+
+    pub type Result<T, E = Errors> = std::result::Result<T, E>;
 }

@@ -1,34 +1,29 @@
-use std::convert::TryFrom;
 use std::io;
-use std::io::{BufRead, Write, StdoutLock, Stdin};
+use std::io::Write;
 
 use git2::{BranchType, Repository};
 
 use errors::term_errors::Errors;
 use handlers::git;
+use handlers::user;
 
-use crate::models::data::{Commands, HELP};
+use crate::models::data::{Commands, HELP, Result};
 
 mod errors;
 mod handlers;
 mod models;
 
 fn main() {
-    (|| {
-        let mut input = io::stdin();
-        let output = io::stdout();
-        let repo = Repository::open_from_env().unwrap();
-        let mut handle_out = output.lock();
+    let mut input = io::stdin();
+    let output = io::stdout();
+    let repo = Repository::open_from_env().unwrap();
+    let mut handle_out = output.lock();
 
+    let result = (|| -> Result<_> {
         writeln!(handle_out, "Type 'help' or 'h' to find all commands")?;
 
         loop {
-            let action = match get_action_from_user(&mut input, &repo, &mut handle_out) {
-                Ok(action) => action,
-                Err(_) => {
-                    get_action_from_user(&mut input, &repo, &mut handle_out)?
-                }
-            };
+            let action = user::handle_user_input(&mut input, &repo, &mut handle_out);
 
             match action {
                 Commands::Quit() => {
@@ -53,28 +48,25 @@ fn main() {
                     writeln!(handle_out, "{}", HELP)?;
                     handle_out.flush()?;
                 }
+            };
+        };
+        Ok(())
+    })();
+
+    match result {
+        Ok(()) => {}
+        Err(error) => {
+            match error {
+                Errors::InvalidInput(..) => {
+                    writeln!(handle_out, "{}", error).unwrap();
+                }
+                _ => {
+                    eprintln!("{}", error);
+                    std::process::exit(1);
+                }
             }
         }
-        Result::<_, Errors>::Ok(())
-    })().unwrap();
+    }
 }
 
-fn get_action_from_user(
-    input: &Stdin,
-    repo: &Repository,
-    handle_out: &mut StdoutLock) -> Result<Commands, Errors> {
-    write!(handle_out, "Type a command > ")?;
-    handle_out.flush()?;
 
-    let req = input.lock().lines().next();
-    let line = match req {
-        Some(line) => line.unwrap(),
-        None => {
-            write!(handle_out, "Incorrect command: {}", req.unwrap()?)?;
-            handle_out.flush()?;
-            return get_action_from_user(input, repo, handle_out);
-        }
-    };
-
-    Commands::try_from(line)
-}
