@@ -27,9 +27,10 @@ pub mod user {
     use std::convert::TryFrom;
     use std::io::{BufRead, Stdin, StdoutLock, Write};
 
-    use git2::Repository;
+    use git2::{Repository, BranchType};
 
     use crate::models::data::Commands;
+    use crate::handlers::git;
 
     pub fn handle_user_input(
         input: &Stdin,
@@ -53,6 +54,14 @@ pub mod user {
                 writeln!(handle_out, "{}", err).unwrap();
                 return handle_user_input(input, repo, handle_out);
             }
+        }
+    }
+
+    pub fn view_branches(repo: &Repository, handle_out: &mut StdoutLock, br_type: BranchType) {
+        let branches = git::handle_branches(&repo, br_type);
+        for item in branches {
+            writeln!(handle_out, "{}", item).unwrap();
+            handle_out.flush().unwrap();
         }
     }
 }

@@ -4,7 +4,6 @@ use std::io::Write;
 use git2::{BranchType, Repository};
 
 use errors::term_errors::Errors;
-use handlers::git;
 use handlers::user;
 
 use crate::models::data::{Commands, HELP, Result};
@@ -31,18 +30,10 @@ fn main() {
                 }
                 Commands::Delete() => {}
                 Commands::Local() => {
-                    let branches = git::handle_branches(&repo, BranchType::Local);
-                    for item in branches {
-                        writeln!(handle_out, "{}", item)?;
-                        handle_out.flush()?;
-                    }
+                    user::view_branches(&repo, &mut handle_out, BranchType::Local)
                 }
                 Commands::Remote() => {
-                    let branches = git::handle_branches(&repo, BranchType::Remote);
-                    for item in branches {
-                        writeln!(handle_out, "{}", item)?;
-                        handle_out.flush()?;
-                    }
+                    user::view_branches(&repo, &mut handle_out, BranchType::Remote)
                 }
                 Commands::Help() => {
                     writeln!(handle_out, "{}", HELP)?;
