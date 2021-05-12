@@ -12,24 +12,25 @@ pub mod data {
 local or l - Get local branches
 remote or r - Get remote branches"#;
 
-    #[derive(Debug, Clone)]
-    pub struct Branch {
+    pub struct Branch<'repo> {
         id: Oid,
         name: String,
         pub time: NaiveDateTime,
+        branch: git2::Branch<'repo>,
     }
 
-    impl Branch {
-        pub fn new(id: Oid, name: String, time: NaiveDateTime) -> Branch {
+    impl Branch<'_> {
+        pub fn new(id: Oid, name: String, time: NaiveDateTime, branch: git2::Branch) -> Branch {
             Branch {
                 id,
                 name,
                 time,
+                branch,
             }
         }
     }
 
-    impl fmt::Display for Branch {
+    impl fmt::Display for Branch<'_> {
         fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
             write!(f, "{} - Last commit {}", self.name, self.time)
         }

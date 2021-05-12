@@ -15,7 +15,7 @@ pub mod git {
             let offset = Duration::minutes(i64::from(time.offset_minutes()));
             let time = NaiveDateTime::from_timestamp(
                 commit.time().seconds(), 0) + offset;
-            branches.push(Branch::new(commit.id(), name, time));
+            branches.push(Branch::new(commit.id(), name, time, branch));
         }
 
         branches.sort_by_key(|branch| branch.time);
@@ -29,7 +29,7 @@ pub mod user {
 
     use git2::{Repository, BranchType};
 
-    use crate::models::data::Commands;
+    use crate::models::data::{Commands, Branch};
     use crate::handlers::git;
 
     pub fn handle_user_input(
@@ -57,11 +57,14 @@ pub mod user {
         }
     }
 
-    pub fn view_branches(repo: &Repository, handle_out: &mut StdoutLock, br_type: BranchType) {
-        let branches = git::handle_branches(&repo, br_type);
+    pub fn view_branches(branches: Vec<Branch>, handle_out: &mut StdoutLock) {
         for item in branches {
             writeln!(handle_out, "{}", item).unwrap();
             handle_out.flush().unwrap();
         }
+    }
+
+    pub fn get_branches(repo: &Repository, br_type: BranchType) -> Vec<Branch> {
+        git::handle_branches(&repo, br_type)
     }
 }

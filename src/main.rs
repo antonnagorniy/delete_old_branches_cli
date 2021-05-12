@@ -3,7 +3,6 @@ use std::io::Write;
 
 use git2::{BranchType, Repository};
 
-use errors::term_errors::Errors;
 use handlers::user;
 
 use crate::models::data::{Commands, HELP, Result};
@@ -30,10 +29,12 @@ fn main() {
                 }
                 Commands::Delete() => {}
                 Commands::Local() => {
-                    user::view_branches(&repo, &mut handle_out, BranchType::Local)
+                    let branches = user::get_branches(&repo, BranchType::Local);
+                    user::view_branches(branches, &mut handle_out)
                 }
                 Commands::Remote() => {
-                    user::view_branches(&repo, &mut handle_out, BranchType::Remote)
+                    let branches = user::get_branches(&repo, BranchType::Remote);
+                    user::view_branches(branches, &mut handle_out)
                 }
                 Commands::Help() => {
                     writeln!(handle_out, "{}", HELP)?;
@@ -47,17 +48,11 @@ fn main() {
     match result {
         Ok(()) => {}
         Err(error) => {
-            match error {
-                Errors::InvalidInput(..) => {
-                    writeln!(handle_out, "{}", error).unwrap();
-                }
-                _ => {
-                    eprintln!("{}", error);
-                    std::process::exit(1);
-                }
-            }
+            eprintln!("{}", error);
+            std::process::exit(1);
         }
     }
 }
+
 
 
