@@ -27,10 +27,11 @@ pub mod user {
     use std::convert::TryFrom;
     use std::io::{BufRead, Stdin, StdoutLock, Write};
 
-    use git2::{Repository, BranchType};
+    use git2::{Repository, BranchType, Error};
 
-    use crate::models::data::{Commands, Branch};
+    use crate::models::data::{Commands, Branch, Result};
     use crate::handlers::git;
+    use crate::errors::term_errors::Errors;
 
     pub fn handle_user_input(
         input: &Stdin,
@@ -46,8 +47,8 @@ pub mod user {
                 return handle_user_input(input, repo, handle_out);
             }
         };
-
-        let command = Commands::try_from(line);
+        let args = line.split(" ").collect::<Vec<&str>>();
+        let command = Commands::try_from(args);
         match command {
             Ok(result) => result,
             Err(err) => {
@@ -66,5 +67,38 @@ pub mod user {
 
     pub fn get_branches(repo: &Repository, br_type: BranchType) -> Vec<Branch> {
         git::handle_branches(&repo, br_type)
+    }
+
+    pub fn get_all_branches(repo: &Repository)-> Vec<Branch> {
+        let local = get_branches(repo, BranchType::Local);
+        let remote = get_branches(repo, BranchType::Remote);
+        let mut result: Vec<Branch> = Vec::new();
+        for item in local {
+            result.push(item);
+        };
+
+        for item in remote {
+            result.push(item);
+        };
+        result
+    }
+
+    pub fn get_branch_by_name(branches: Vec<Branch>, name: String) -> Result<Branch> {
+        for item in branches {
+            if item.name == name {
+                return Ok(item);
+            };
+        }
+        Err(Errors::BranchNotFound(name))
+    }
+
+    pub fn delete_branch(branch: &mut Branch) -> std::result::Result<(), Error> {
+       branch.branch.delete()
+
+
+        /*let mut f = File::open("hello.txt")?;
+        let mut s = String::new();
+        f.read_to_string(&mut s)?;
+        Ok(s)*/
     }
 }

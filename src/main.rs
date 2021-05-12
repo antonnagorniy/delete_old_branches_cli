@@ -27,13 +27,40 @@ fn main() {
                 Commands::Quit() => {
                     break;
                 }
-                Commands::Delete() => {}
+                Commands::Delete(name) => {
+                    let branches = user::get_all_branches(&repo);
+                    let branch = user::get_branch_by_name(branches, name);
+                    let mut branch = match branch {
+                        Ok(branch) => { branch }
+                        Err(err) => {
+                            writeln!(handle_out, "{}", err)?;
+                            handle_out.flush()?;
+                            continue;
+                        }
+                    };
+
+                    let result = match user::delete_branch(&mut branch) {
+                        Ok(res) => {
+                            writeln!(handle_out, "{} deleted", &branch.name)?;
+                            handle_out.flush()?;
+                            res
+                        }
+                        Err(err) => {
+                            writeln!(handle_out, "{}", err)?;
+                            handle_out.flush()?;
+                            continue;
+                        }
+                    };
+                    result
+                }
                 Commands::Local() => {
-                    let branches = user::get_branches(&repo, BranchType::Local);
+                    let branches = user::get_branches(
+                        &repo, BranchType::Local);
                     user::view_branches(branches, &mut handle_out)
                 }
                 Commands::Remote() => {
-                    let branches = user::get_branches(&repo, BranchType::Remote);
+                    let branches = user::get_branches(
+                        &repo, BranchType::Remote);
                     user::view_branches(branches, &mut handle_out)
                 }
                 Commands::Help() => {
