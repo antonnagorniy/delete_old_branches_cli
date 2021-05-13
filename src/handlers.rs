@@ -47,13 +47,13 @@ pub mod user {
                 return handle_user_input(input, repo, handle_out);
             }
         };
-        let args = line.split(" ").collect::<Vec<&str>>();
+        let args = line.split(' ').collect::<Vec<&str>>();
         let command = Commands::try_from(args);
         match command {
             Ok(result) => result,
             Err(err) => {
                 writeln!(handle_out, "{}", err).unwrap();
-                return handle_user_input(input, repo, handle_out);
+                handle_user_input(input, repo, handle_out)
             }
         }
     }

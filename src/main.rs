@@ -13,7 +13,7 @@ mod models;
 mod handlers_test;
 
 fn main() {
-    let mut input = io::stdin();
+    let input = io::stdin();
     let output = io::stdout();
     let repo = Repository::open_from_env().unwrap();
     let mut handle_out = output.lock();
@@ -22,7 +22,7 @@ fn main() {
         writeln!(handle_out, "Type 'help' or 'h' to find all commands")?;
 
         loop {
-            let action = user::handle_user_input(&mut input, &repo, &mut handle_out);
+            let action = user::handle_user_input(&input, &repo, &mut handle_out);
 
             match action {
                 Commands::Quit() => {
