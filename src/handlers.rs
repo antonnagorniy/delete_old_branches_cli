@@ -94,11 +94,5 @@ pub mod user {
 
     pub fn delete_branch(branch: &mut Branch) -> std::result::Result<(), Error> {
        branch.branch.delete()
-
-
-        /*let mut f = File::open("hello.txt")?;
-        let mut s = String::new();
-        f.read_to_string(&mut s)?;
-        Ok(s)*/
     }
 }
