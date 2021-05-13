@@ -15,7 +15,7 @@ pub mod git {
             let offset = Duration::minutes(i64::from(time.offset_minutes()));
             let time = NaiveDateTime::from_timestamp(
                 commit.time().seconds(), 0) + offset;
-            branches.push(Branch::new(commit.id(), name, time, branch));
+            branches.push(Branch::new(name, time, branch));
         }
 
         branches.sort_by_key(|branch| branch.time);
@@ -47,13 +47,13 @@ pub mod user {
                 return handle_user_input(input, repo, handle_out);
             }
         };
-        let args = line.split(" ").collect::<Vec<&str>>();
+        let args = line.split(' ').collect::<Vec<&str>>();
         let command = Commands::try_from(args);
         match command {
             Ok(result) => result,
             Err(err) => {
                 writeln!(handle_out, "{}", err).unwrap();
-                return handle_user_input(input, repo, handle_out);
+                handle_user_input(input, repo, handle_out)
             }
         }
     }
