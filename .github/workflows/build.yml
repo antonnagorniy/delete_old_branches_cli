@@ -9,13 +9,12 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
   test:
-    name: Run cargo-tarpaulin
+    name: Run tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions-rs/tarpaulin@v0.1
+      - uses: actions-rs/cargo@v1
         with:
-          version: '0.15.0'
-          args: '-- --test-threads 1'
+          command: test
   build:
     name: Run build
     needs: [ lint, test ]
