@@ -15,7 +15,7 @@ pub mod git {
             let offset = Duration::minutes(i64::from(time.offset_minutes()));
             let time = NaiveDateTime::from_timestamp(
                 commit.time().seconds(), 0) + offset;
-            branches.push(Branch::new(commit.id(), name, time, branch));
+            branches.push(Branch::new(name, time, branch));
         }
 
         branches.sort_by_key(|branch| branch.time);

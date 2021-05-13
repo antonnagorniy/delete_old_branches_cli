@@ -4,25 +4,23 @@ pub mod data {
     use std::fmt::Formatter;
 
     use chrono::NaiveDateTime;
-    use git2::Oid;
 
     use crate::errors::term_errors::Errors;
 
     pub const HELP: &str = r#"quit or q - Exit from app
 local or l - Get local branches
-remote or r - Get remote branches"#;
+remote or r - Get remote branches
+delete 'branch name' or d 'branch name' - Deletes branch by specified name"#;
 
     pub struct Branch<'repo> {
-        id: Oid,
         pub name: String,
         pub time: NaiveDateTime,
         pub branch: git2::Branch<'repo>,
     }
 
     impl Branch<'_> {
-        pub fn new(id: Oid, name: String, time: NaiveDateTime, branch: git2::Branch) -> Branch {
+        pub fn new(name: String, time: NaiveDateTime, branch: git2::Branch) -> Branch {
             Branch {
-                id,
                 name,
                 time,
                 branch,
@@ -32,7 +30,7 @@ remote or r - Get remote branches"#;
 
     impl fmt::Display for Branch<'_> {
         fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-            write!(f, "{} - Last commit {} Hash {}", self.name, self.time, self.id)
+            write!(f, "{} - Last commit {}", self.name, self.time)
         }
     }
 

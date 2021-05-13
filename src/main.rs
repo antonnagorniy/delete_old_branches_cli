@@ -10,6 +10,7 @@ use crate::models::data::{Commands, HELP, Result};
 mod errors;
 mod handlers;
 mod models;
+mod handlers_test;
 
 fn main() {
     let mut input = io::stdin();
