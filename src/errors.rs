@@ -14,5 +14,8 @@ pub mod term_errors {
 
         #[error("Invalid command: {0}")]
         InvalidInput(String),
+
+        #[error("Branch not found: {0}")]
+        BranchNotFound(String),
     }
 }
