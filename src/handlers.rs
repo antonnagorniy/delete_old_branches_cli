@@ -5,14 +5,14 @@ pub mod git {
     use crate::errors::term_errors::Errors;
     use crate::models::data::{Branch, Result};
 
-    pub fn get_branches_by_type(repo: &Repository, br_type: BranchType) -> Vec<Branch> {
+    pub fn get_branches_by_type(repo: &Repository, br_type: BranchType) -> Result<Vec<Branch>> {
         let mut branches: Vec<Branch> = Vec::new();
 
 
-        for item in repo.branches(Some(br_type)).unwrap() {
-            let (branch, _) = item.unwrap();
-            let name = branch.name().unwrap().unwrap().to_string();
-            let commit = branch.get().peel_to_commit().unwrap().clone();
+        for item in repo.branches(Some(br_type))? {
+            let (branch, _) = item?;
+            let name = branch.name()?.unwrap().to_string();
+            let commit = branch.get().peel_to_commit()?.clone();
             let time = commit.time();
             let offset = Duration::minutes(i64::from(time.offset_minutes()));
             let time = NaiveDateTime::from_timestamp(
@@ -21,12 +21,12 @@ pub mod git {
         }
 
         branches.sort_by_key(|branch| branch.time);
-        branches
+        Ok(branches)
     }
 
-    pub fn get_all_branches(repo: &Repository) -> Vec<Branch> {
-        let local = get_branches_by_type(repo, BranchType::Local);
-        let remote = get_branches_by_type(repo, BranchType::Remote);
+    pub fn get_all_branches(repo: &Repository) -> Result<Vec<Branch>> {
+        let local = get_branches_by_type(repo, BranchType::Local)?;
+        let remote = get_branches_by_type(repo, BranchType::Remote)?;
         let mut result: Vec<Branch> = Vec::new();
         for item in local {
             result.push(item);
@@ -35,7 +35,7 @@ pub mod git {
         for item in remote {
             result.push(item);
         };
-        result
+        Ok(result)
     }
 
     pub fn get_branch_by_name(branches: Vec<Branch>, name: String) -> Result<Branch> {

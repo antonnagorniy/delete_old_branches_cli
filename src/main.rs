@@ -30,7 +30,7 @@ fn main() {
                     break;
                 }
                 Commands::Delete(name) => {
-                    let branches = git::get_all_branches(&repo);
+                    let branches = git::get_all_branches(&repo)?;
                     let branch = git::get_branch_by_name(branches, name);
                     let mut branch = match branch {
                         Ok(branch) => { branch }
@@ -57,12 +57,12 @@ fn main() {
                 }
                 Commands::Local() => {
                     let branches = git::get_branches_by_type(
-                        &repo, BranchType::Local);
+                        &repo, BranchType::Local)?;
                     user::view_branches(branches, &mut handle_out)
                 }
                 Commands::Remote() => {
                     let branches = git::get_branches_by_type(
-                        &repo, BranchType::Remote);
+                        &repo, BranchType::Remote)?;
                     user::view_branches(branches, &mut handle_out)
                 }
                 Commands::Help() => {

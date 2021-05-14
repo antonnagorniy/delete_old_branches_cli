@@ -13,7 +13,8 @@ pub mod handlers_test {
         expected_branch_names.push("master".to_string());
         expected_branch_names.push("develop".to_string());
 
-        let branches = git::get_branches_by_type(&repo, BranchType::Local);
+        let branches = git::get_branches_by_type(
+            &repo, BranchType::Local).unwrap();
 
         for item in branches {
             branch_names.push(item.name)
@@ -34,7 +35,8 @@ pub mod handlers_test {
         expected_branch_names.push("origin/master".to_string());
         expected_branch_names.push("origin/develop".to_string());
 
-        let branches = git::get_branches_by_type(&repo, BranchType::Remote);
+        let branches = git::get_branches_by_type(
+            &repo, BranchType::Remote).unwrap();
 
         for item in branches {
             branch_names.push(item.name)
@@ -48,12 +50,23 @@ pub mod handlers_test {
     #[test]
     fn get_branch_by_name_should_return_branch() {
         let repo = Repository::open_from_env().unwrap();
-        let branches = git::get_all_branches(&repo);
+        let branches = git::get_all_branches(&repo).unwrap();
         let expected_name = String::from("develop");
         let branch = git::get_branch_by_name(
             branches, expected_name.clone()).unwrap();
 
         assert_eq!(branch.name, expected_name)
+    }
+
+    #[test]
+    fn get_branch_by_name_should_return_error() {
+        let repo = Repository::open_from_env().unwrap();
+        let branches = git::get_all_branches(&repo).unwrap();
+        let expected_name = String::from("tests_");
+        let result = git::get_branch_by_name(
+            branches, expected_name.clone());
+
+        assert!(!result.is_ok())
     }
 
     #[test]
@@ -69,8 +82,10 @@ pub mod handlers_test {
         expected_branch_names.push("origin/develop".to_string());
 
 
-        let branches_local = git::get_branches_by_type(&repo, BranchType::Local);
-        let branches_remote = git::get_branches_by_type(&repo, BranchType::Remote);
+        let branches_local = git::get_branches_by_type(
+            &repo, BranchType::Local).unwrap();
+        let branches_remote = git::get_branches_by_type(
+            &repo, BranchType::Remote).unwrap();
 
         for item in branches_local {
             branch_names.push(item.name)
