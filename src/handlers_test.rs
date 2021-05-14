@@ -14,7 +14,7 @@ pub mod handlers_test {
         expected_branch_names.push("master".to_string());
         expected_branch_names.push("develop".to_string());
 
-        let branches = git::handle_branches(&repo, BranchType::Local);
+        let branches = git::get_branches_by_type(&repo, BranchType::Local);
 
         for item in branches {
             branch_names.push(item.name)
@@ -35,7 +35,7 @@ pub mod handlers_test {
         expected_branch_names.push("origin/master".to_string());
         expected_branch_names.push("origin/develop".to_string());
 
-        let branches = git::handle_branches(&repo, BranchType::Local);
+        let branches = git::get_branches_by_type(&repo, BranchType::Local);
 
         for item in branches {
             branch_names.push(item.name)

@@ -6,6 +6,7 @@ use git2::{BranchType, Repository};
 use handlers::user;
 
 use crate::models::data::{Commands, HELP, Result};
+use crate::handlers::git;
 
 mod errors;
 mod handlers;
@@ -29,8 +30,8 @@ fn main() {
                     break;
                 }
                 Commands::Delete(name) => {
-                    let branches = user::get_all_branches(&repo);
-                    let branch = user::get_branch_by_name(branches, name);
+                    let branches = git::get_all_branches(&repo);
+                    let branch = git::get_branch_by_name(branches, name);
                     let mut branch = match branch {
                         Ok(branch) => { branch }
                         Err(err) => {
@@ -40,7 +41,7 @@ fn main() {
                         }
                     };
 
-                    let result = match user::delete_branch(&mut branch) {
+                    let result = match git::delete_branch(&mut branch) {
                         Ok(res) => {
                             writeln!(handle_out, "{} deleted", &branch.name)?;
                             handle_out.flush()?;
@@ -55,12 +56,12 @@ fn main() {
                     result
                 }
                 Commands::Local() => {
-                    let branches = user::get_branches(
+                    let branches = git::get_branches_by_type(
                         &repo, BranchType::Local);
                     user::view_branches(branches, &mut handle_out)
                 }
                 Commands::Remote() => {
-                    let branches = user::get_branches(
+                    let branches = git::get_branches_by_type(
                         &repo, BranchType::Remote);
                     user::view_branches(branches, &mut handle_out)
                 }

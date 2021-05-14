@@ -1,10 +1,11 @@
 pub mod git {
     use chrono::{Duration, NaiveDateTime};
-    use git2::{BranchType, Repository};
+    use git2::{BranchType, Error, Repository};
 
-    use crate::models::data::Branch;
+    use crate::errors::term_errors::Errors;
+    use crate::models::data::{Branch, Result};
 
-    pub fn handle_branches(repo: &Repository, br_type: BranchType) -> Vec<Branch> {
+    pub fn get_branches_by_type(repo: &Repository, br_type: BranchType) -> Vec<Branch> {
         let mut branches: Vec<Branch> = Vec::new();
 
         for item in repo.branches(Some(br_type)).unwrap() {
@@ -21,17 +22,42 @@ pub mod git {
         branches.sort_by_key(|branch| branch.time);
         branches
     }
+
+    pub fn get_all_branches(repo: &Repository) -> Vec<Branch> {
+        let local = get_branches_by_type(repo, BranchType::Local);
+        let remote = get_branches_by_type(repo, BranchType::Remote);
+        let mut result: Vec<Branch> = Vec::new();
+        for item in local {
+            result.push(item);
+        };
+
+        for item in remote {
+            result.push(item);
+        };
+        result
+    }
+
+    pub fn get_branch_by_name(branches: Vec<Branch>, name: String) -> Result<Branch> {
+        for item in branches {
+            if item.name == name {
+                return Ok(item);
+            };
+        }
+        Err(Errors::BranchNotFound(name))
+    }
+
+    pub fn delete_branch(branch: &mut Branch) -> Result<(), Error> {
+        branch.branch.delete()
+    }
 }
 
 pub mod user {
     use std::convert::TryFrom;
     use std::io::{BufRead, Stdin, StdoutLock, Write};
 
-    use git2::{Repository, BranchType, Error};
+    use git2::Repository;
 
-    use crate::models::data::{Commands, Branch, Result};
-    use crate::handlers::git;
-    use crate::errors::term_errors::Errors;
+    use crate::models::data::{Branch, Commands};
 
     pub fn handle_user_input(
         input: &Stdin,
@@ -63,36 +89,5 @@ pub mod user {
             writeln!(handle_out, "{}", item).unwrap();
             handle_out.flush().unwrap();
         }
-    }
-
-    pub fn get_branches(repo: &Repository, br_type: BranchType) -> Vec<Branch> {
-        git::handle_branches(&repo, br_type)
-    }
-
-    pub fn get_all_branches(repo: &Repository)-> Vec<Branch> {
-        let local = get_branches(repo, BranchType::Local);
-        let remote = get_branches(repo, BranchType::Remote);
-        let mut result: Vec<Branch> = Vec::new();
-        for item in local {
-            result.push(item);
-        };
-
-        for item in remote {
-            result.push(item);
-        };
-        result
-    }
-
-    pub fn get_branch_by_name(branches: Vec<Branch>, name: String) -> Result<Branch> {
-        for item in branches {
-            if item.name == name {
-                return Ok(item);
-            };
-        }
-        Err(Errors::BranchNotFound(name))
-    }
-
-    pub fn delete_branch(branch: &mut Branch) -> std::result::Result<(), Error> {
-       branch.branch.delete()
     }
 }
