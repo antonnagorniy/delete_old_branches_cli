@@ -8,6 +8,7 @@ pub mod git {
     pub fn get_branches_by_type(repo: &Repository, br_type: BranchType) -> Vec<Branch> {
         let mut branches: Vec<Branch> = Vec::new();
 
+
         for item in repo.branches(Some(br_type)).unwrap() {
             let (branch, _) = item.unwrap();
             let name = branch.name().unwrap().unwrap().to_string();
