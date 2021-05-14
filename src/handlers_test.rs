@@ -3,14 +3,12 @@ pub mod handlers_test {
     use git2::{BranchType, Repository};
 
     use crate::handlers::git;
-    use std::path::Path;
 
     #[test]
     fn get_branches_by_type_should_return_local_branches() {
         let repo = Repository::open_from_env().unwrap();
         let branches = git::get_branches_by_type(
             &repo, BranchType::Local);
-
         assert!(branches.is_ok())
     }
 
@@ -28,7 +26,6 @@ pub mod handlers_test {
         let expected_name = String::from("develop");
         let branch = git::get_branch_by_name(
             &repo, expected_name.clone()).unwrap();
-
         assert_eq!(branch.name, expected_name)
     }
 
@@ -38,7 +35,6 @@ pub mod handlers_test {
         let expected_name = String::from("tests_");
         let result = git::get_branch_by_name(
             &repo, expected_name.clone());
-
         assert!(!result.is_ok())
     }
 
