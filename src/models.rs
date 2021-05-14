@@ -7,10 +7,13 @@ pub mod data {
 
     use crate::errors::term_errors::Errors;
 
-    pub const HELP: &str = r#"quit or q - Exit from app
-local or l - Get local branches
-remote or r - Get remote branches
-delete 'branch name' or d 'branch name' - Deletes branch by specified name"#;
+    pub const HELP: &str = r#"
+        all or 'a' - Shows all branches
+        quit or 'q' - Exits from app
+        local or 'l' - Shows local branches
+        remote or 'r' - Shows remote branches
+        delete 'branch name' or 'd' 'branch name' - Deletes branch by specified name
+"#;
 
     pub struct Branch<'repo> {
         pub name: String,
@@ -35,6 +38,7 @@ delete 'branch name' or d 'branch name' - Deletes branch by specified name"#;
     }
 
     pub enum Commands {
+        All(),
         Quit(),
         Local(),
         Remote(),
@@ -47,6 +51,7 @@ delete 'branch name' or d 'branch name' - Deletes branch by specified name"#;
 
         fn try_from(value: Vec<&str>) -> Result<Self, Self::Error> {
             match value[0].to_lowercase().as_str() {
+                "all" | "a" => Ok(Commands::All()),
                 "quit" | "q" => Ok(Commands::Quit()),
                 "local" | "l" => Ok(Commands::Local()),
                 "remote" | "r" => Ok(Commands::Remote()),

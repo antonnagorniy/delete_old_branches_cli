@@ -26,13 +26,16 @@ fn main() {
             let action = user::handle_user_input(&input, &repo, &mut handle_out);
 
             match action {
+                Commands::All() => {
+                    let all_branches = git::get_all_branches(&repo)?;
+                    user::view_branches(all_branches, &mut handle_out)
+                }
                 Commands::Quit() => {
                     break;
                 }
                 Commands::Delete(name) => {
-                    let branches = git::get_all_branches(&repo)?;
-                    let branch = git::get_branch_by_name(branches, name);
-                    let mut branch = match branch {
+                    let result = git::get_branch_by_name(&repo, name);
+                    let mut branch = match result {
                         Ok(branch) => { branch }
                         Err(err) => {
                             writeln!(handle_out, "{}", err)?;

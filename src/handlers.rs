@@ -8,15 +8,10 @@ pub mod git {
     pub fn get_branches_by_type(repo: &Repository, br_type: BranchType) -> Result<Vec<Branch>> {
         let mut branches: Vec<Branch> = Vec::new();
 
-
         for item in repo.branches(Some(br_type))? {
             let (branch, _) = item?;
             let name = branch.name()?.unwrap().to_string();
-            let commit = branch.get().peel_to_commit()?.clone();
-            let time = commit.time();
-            let offset = Duration::minutes(i64::from(time.offset_minutes()));
-            let time = NaiveDateTime::from_timestamp(
-                commit.time().seconds(), 0) + offset;
+            let time = get_time_from_branch(&branch)?;
             branches.push(Branch::new(name, time, branch));
         }
 
@@ -28,23 +23,49 @@ pub mod git {
         let local = get_branches_by_type(repo, BranchType::Local)?;
         let remote = get_branches_by_type(repo, BranchType::Remote)?;
         let mut result: Vec<Branch> = Vec::new();
-        for item in local {
-            result.push(item);
-        };
 
-        for item in remote {
-            result.push(item);
-        };
+        result.extend(local);
+        result.extend(remote);
+        result.sort_by_key(|branch| branch.time);
         Ok(result)
     }
 
-    pub fn get_branch_by_name(branches: Vec<Branch>, name: String) -> Result<Branch> {
-        for item in branches {
-            if item.name == name {
-                return Ok(item);
-            };
+    pub fn get_branch_by_name(repo: &Repository, name: String) -> Result<Branch> {
+        match repo.find_branch(name.as_str(), BranchType::Local) {
+            Ok(branch) => {
+                let time = get_time_from_branch(&branch)?;
+                Ok(Branch {
+                    name,
+                    time,
+                    branch,
+                })
+            }
+            Err(f_err) => {
+                match repo.find_branch(name.as_str(), BranchType::Remote) {
+                    Ok(branch) => {
+                        let time = get_time_from_branch(&branch)?;
+                        Ok(Branch {
+                            name,
+                            time,
+                            branch,
+                        })
+                    }
+                    Err(s_err) => {
+                        Err(Errors::BranchNotFound(format!(
+                            "\n{}\n{}", f_err.message(), s_err.message()).to_string()))
+                    }
+                }
+            }
         }
-        Err(Errors::BranchNotFound(name))
+    }
+
+    fn get_time_from_branch(branch: &git2::Branch) -> Result<NaiveDateTime> {
+        let commit = branch.get().peel_to_commit()?;
+        let time = commit.time();
+        let offset = Duration::minutes(i64::from(time.offset_minutes()));
+        let time = NaiveDateTime::from_timestamp(
+            commit.time().seconds(), 0) + offset;
+        Ok(time)
     }
 
     pub fn delete_branch(branch: &mut Branch) -> Result<(), Error> {
