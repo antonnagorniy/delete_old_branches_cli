@@ -1,9 +1,44 @@
 pub mod git {
+    use std::io::{BufRead, Stdin, StdoutLock, Write};
+
     use chrono::{Duration, NaiveDateTime};
     use git2::{BranchType, Error, Repository};
 
     use crate::errors::term_errors::Errors;
     use crate::models::data::{Branch, Result};
+
+    pub fn get_repo(input: &Stdin, handle_out: &mut StdoutLock) -> Result<Repository> {
+        write!(handle_out, "Input a repo path > ")?;
+        handle_out.flush().unwrap();
+
+        let req = input.lock().lines().next();
+        let line = match req {
+            Some(line) => line,
+            None => {
+                return get_repo(input, handle_out);
+            }
+        };
+
+        let result = match line {
+            Ok(path) => {
+                let repo = match Repository::open(path) {
+                    Ok(repo) => {
+                        repo
+                    }
+                    Err(err) => {
+                        writeln!(handle_out, "{}", err)?;
+                        get_repo(input, handle_out)?
+                    }
+                };
+                repo
+            }
+            Err(err) => {
+                writeln!(handle_out, "{}", err)?;
+                get_repo(input, handle_out)?
+            }
+        };
+        Ok(result)
+    }
 
     pub fn get_branches_by_type(repo: &Repository, br_type: BranchType) -> Result<Vec<Branch>> {
         let mut branches: Vec<Branch> = Vec::new();

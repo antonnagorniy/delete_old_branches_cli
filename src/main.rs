@@ -1,7 +1,7 @@
 use std::io;
 use std::io::Write;
 
-use git2::{BranchType, Repository};
+use git2::{BranchType};
 
 use handlers::user;
 
@@ -16,10 +16,10 @@ mod handlers_test;
 fn main() {
     let input = io::stdin();
     let output = io::stdout();
-    let repo = Repository::open_from_env().unwrap();
     let mut handle_out = output.lock();
 
     let result = (|| -> Result<_> {
+        let repo = git::get_repo(&input, &mut handle_out)?;
         writeln!(handle_out, "Type 'help' or 'h' to find all commands")?;
 
         loop {
