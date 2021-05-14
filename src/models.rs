@@ -51,8 +51,15 @@ delete 'branch name' or d 'branch name' - Deletes branch by specified name"#;
                 "local" | "l" => Ok(Commands::Local()),
                 "remote" | "r" => Ok(Commands::Remote()),
                 "help" | "h" | "?" => Ok(Commands::Help()),
-                "delete" | "d" => Ok(Commands::Delete(value[1].to_string())),
-                _ => {Err(Errors::InvalidInput(value.join(" ")))
+                "delete" | "d" => {
+                    if value.len() == 1 {
+                        Err(Errors::EmptyCommandArg(value[0].to_string()))
+                    } else {
+                        Ok(Commands::Delete(value[1].to_string()))
+                    }
+                }
+                _ => {
+                    Err(Errors::InvalidInput(value.join(" ")))
                 }
             }
         }
