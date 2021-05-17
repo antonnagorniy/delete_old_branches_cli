@@ -23,7 +23,7 @@ pub mod handlers_test {
     #[test]
     fn get_branch_by_name_should_return_branch() {
         let repo = Repository::open_from_env().unwrap();
-        let expected_name = String::from("develop");
+        let expected_name = String::from("origin/develop");
         let branch = git::get_branch_by_name(
             &repo, expected_name.clone()).unwrap();
         assert_eq!(branch.name, expected_name)
