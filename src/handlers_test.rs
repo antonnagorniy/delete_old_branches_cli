@@ -4,45 +4,44 @@ pub mod handlers_test {
 
     use crate::handlers::git;
 
-
     #[test]
-    fn handle_branches_should_return_local_branches() {
+    fn get_branches_by_type_should_return_local_branches() {
         let repo = Repository::open_from_env().unwrap();
-        let mut branch_names: Vec<String> = Vec::new();
-        let mut expected_branch_names = Vec::new();
-
-        expected_branch_names.push("master".to_string());
-        expected_branch_names.push("develop".to_string());
-
-        let branches = git::handle_branches(&repo, BranchType::Local);
-
-        for item in branches {
-            branch_names.push(item.name)
-        }
-
-        for (index, item) in expected_branch_names.iter().enumerate() {
-            assert_eq!(item.as_str(), expected_branch_names[index].as_str());
-        }
+        let branches = git::get_branches_by_type(
+            &repo, BranchType::Local);
+        assert!(branches.is_ok())
     }
 
     #[test]
-    fn handle_branches_should_return_remote_branches() {
+    fn get_branches_by_type_should_return_remote_branches() {
         let repo = Repository::open_from_env().unwrap();
-        let mut branch_names: Vec<String> = Vec::new();
-        let mut expected_branch_names = Vec::new();
+        let branches = git::get_branches_by_type(
+            &repo, BranchType::Remote);
+        assert!(branches.is_ok())
+    }
 
-        expected_branch_names.push("origin/HEAD".to_string());
-        expected_branch_names.push("origin/master".to_string());
-        expected_branch_names.push("origin/develop".to_string());
+    #[test]
+    fn get_branch_by_name_should_return_branch() {
+        let repo = Repository::open_from_env().unwrap();
+        let expected_name = String::from("develop");
+        let branch = git::get_branch_by_name(
+            &repo, expected_name.clone()).unwrap();
+        assert_eq!(branch.name, expected_name)
+    }
 
-        let branches = git::handle_branches(&repo, BranchType::Local);
+    #[test]
+    fn get_branch_by_name_should_return_error() {
+        let repo = Repository::open_from_env().unwrap();
+        let expected_name = String::from("tests_");
+        let result = git::get_branch_by_name(
+            &repo, expected_name.clone());
+        assert!(!result.is_ok())
+    }
 
-        for item in branches {
-            branch_names.push(item.name)
-        }
-
-        for (index, item) in expected_branch_names.iter().enumerate() {
-            assert_eq!(item.as_str(), expected_branch_names[index].as_str());
-        }
+    #[test]
+    fn get_all_branches_should_return_all_branches() {
+        let repo = Repository::open_from_env().unwrap();
+        let result = git::get_all_branches(&repo);
+        assert!(result.is_ok())
     }
 }

@@ -1,11 +1,12 @@
 use std::io;
 use std::io::Write;
 
-use git2::{BranchType, Repository};
+use git2::{BranchType};
 
 use handlers::user;
 
 use crate::models::data::{Commands, HELP, Result};
+use crate::handlers::git;
 
 mod errors;
 mod handlers;
@@ -15,23 +16,26 @@ mod handlers_test;
 fn main() {
     let input = io::stdin();
     let output = io::stdout();
-    let repo = Repository::open_from_env().unwrap();
     let mut handle_out = output.lock();
 
     let result = (|| -> Result<_> {
+        let repo = git::get_repo(&input, &mut handle_out)?;
         writeln!(handle_out, "Type 'help' or 'h' to find all commands")?;
 
         loop {
             let action = user::handle_user_input(&input, &repo, &mut handle_out);
 
             match action {
+                Commands::All() => {
+                    let all_branches = git::get_all_branches(&repo)?;
+                    user::view_branches(all_branches, &mut handle_out)
+                }
                 Commands::Quit() => {
                     break;
                 }
                 Commands::Delete(name) => {
-                    let branches = user::get_all_branches(&repo);
-                    let branch = user::get_branch_by_name(branches, name);
-                    let mut branch = match branch {
+                    let result = git::get_branch_by_name(&repo, name);
+                    let mut branch = match result {
                         Ok(branch) => { branch }
                         Err(err) => {
                             writeln!(handle_out, "{}", err)?;
@@ -40,7 +44,7 @@ fn main() {
                         }
                     };
 
-                    let result = match user::delete_branch(&mut branch) {
+                    let result = match git::delete_branch(&mut branch) {
                         Ok(res) => {
                             writeln!(handle_out, "{} deleted", &branch.name)?;
                             handle_out.flush()?;
@@ -55,13 +59,13 @@ fn main() {
                     result
                 }
                 Commands::Local() => {
-                    let branches = user::get_branches(
-                        &repo, BranchType::Local);
+                    let branches = git::get_branches_by_type(
+                        &repo, BranchType::Local)?;
                     user::view_branches(branches, &mut handle_out)
                 }
                 Commands::Remote() => {
-                    let branches = user::get_branches(
-                        &repo, BranchType::Remote);
+                    let branches = git::get_branches_by_type(
+                        &repo, BranchType::Remote)?;
                     user::view_branches(branches, &mut handle_out)
                 }
                 Commands::Help() => {
@@ -81,6 +85,3 @@ fn main() {
         }
     }
 }
-
-
-

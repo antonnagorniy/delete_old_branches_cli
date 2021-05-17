@@ -6,3 +6,21 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ### Example usage:
+
+```
+1. clone repo
+2. cargo run
+    or
+   cargo build
+and use binary
+3. In path request provide a path to a repo
+4.      'all' or 'a' - Shows all branches
+        'local' or 'l' - Shows local branches
+        'remote' or 'r' - Shows remote branches
+        'quit' or 'q' - Exits from app
+        'help' or 'h' or '?' - Shows this help list 
+        'delete branch_name' or 'd branch_name' - Deletes branch by specified name
+```
+
+## Work in progress
+1. Implement a command to view branches older than xx(in days, weeks, months or years) 
