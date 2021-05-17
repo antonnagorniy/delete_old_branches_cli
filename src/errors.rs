@@ -18,7 +18,8 @@ pub mod term_errors {
         #[error("Empty argument for '{0}'")]
         EmptyCommandArg(String),
 
-        #[error("Branch not found: {0}")]
+        #[error("{0}")]
         BranchNotFound(String),
+
     }
 }

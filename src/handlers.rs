@@ -87,7 +87,7 @@ pub mod git {
                     }
                     Err(s_err) => {
                         Err(Errors::BranchNotFound(format!(
-                            "\n{}\n{}", f_err.message(), s_err.message()).to_string()))
+                            "\n{}\n{}\n", f_err.message(), s_err.message()).to_string()))
                     }
                 }
             }
