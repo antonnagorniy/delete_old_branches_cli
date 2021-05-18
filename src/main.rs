@@ -72,6 +72,11 @@ fn main() {
                     writeln!(handle_out, "{}", HELP)?;
                     handle_out.flush()?;
                 }
+                Commands::Check(name) => {
+                    let branch = git::get_branch_by_name(&repo, name)?;
+                    writeln!(handle_out, "{}", branch)?;
+                    handle_out.flush()?;
+                }
             };
         };
         Ok(())
