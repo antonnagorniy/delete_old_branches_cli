@@ -17,9 +17,10 @@ and use binary
 4.      'all' or 'a' - Shows all branches
         'local' or 'l' - Shows local branches
         'remote' or 'r' - Shows remote branches
-        'quit' or 'q' - Exits from app
+        'check branch_name' or 'c branch_name' - Shows branch by specified name
+        'delete branch name' or 'd branch name' - Deletes branch by specified name
         'help' or 'h' or '?' - Shows this help list 
-        'delete branch_name' or 'd branch_name' - Deletes branch by specified name
+        'quit' or 'q' - Exits from app
 ```
 
 ## Work in progress
