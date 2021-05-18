@@ -8,11 +8,13 @@ pub mod data {
     use crate::errors::term_errors::Errors;
 
     pub const HELP: &str = r#"
-        all or 'a' - Shows all branches
-        quit or 'q' - Exits from app
-        local or 'l' - Shows local branches
-        remote or 'r' - Shows remote branches
-        delete 'branch name' or 'd' 'branch name' - Deletes branch by specified name
+        'all' or 'a' - Shows all branches
+        'local' or 'l' - Shows local branches
+        'remote' or 'r' - Shows remote branches
+        'check branch_name' or 'c branch_name' - Shows branch by specified name
+        'delete branch name' or 'd branch name' - Deletes branch by specified name
+        'help' or 'h' or '?' - Shows this help list
+        'quit' or 'q' - Exits from app
 "#;
 
     pub struct Branch<'repo> {
@@ -44,6 +46,7 @@ pub mod data {
         Remote(),
         Help(),
         Delete(String),
+        Check(String),
     }
 
     impl TryFrom<Vec<&str>> for Commands {
@@ -61,6 +64,13 @@ pub mod data {
                         Err(Errors::EmptyCommandArg(value[0].to_string()))
                     } else {
                         Ok(Commands::Delete(value[1].to_string()))
+                    }
+                }
+                "check" | "c" => {
+                    if value.len() == 1 {
+                        Err(Errors::EmptyCommandArg(value[0].to_string()))
+                    } else {
+                        Ok(Commands::Check(value[1].to_string()))
                     }
                 }
                 _ => {
