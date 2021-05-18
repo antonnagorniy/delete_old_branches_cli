@@ -17,7 +17,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get -y upgrade && sudo apt-get -y update
-          sudo apt-get -y install gcc sshguard pkg-config libssl-dev git
+          sudo apt-get -y install gcc sshguard pkg-config libssl-dev git openssl
       - name: Compile and release
         uses: rust-build/rust-build.action@latest
         env:
